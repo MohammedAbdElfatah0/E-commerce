@@ -20,7 +20,8 @@ export class AuthGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
 
         //public service
-        const Public = this.reflector.get(PUBLIC, context.getHandler);
+        const Public = this.reflector.get(PUBLIC, context.getHandler());
+        console.log("public in auth",Public)
         if (Public) return true;
 
 
@@ -29,9 +30,10 @@ export class AuthGuard implements CanActivate {
         if (!authorization) throw new BadRequestException("authorization is required")
         const payload = this.JwtService.verify<{ _id: string, role: string, email: string }>(authorization, { secret: this.configService.get("token").access })
         //check user exist:
-        const userExist =await this.UserRepository.getOne({ _id: payload._id });
+        const userExist = await this.UserRepository.getOne({ _id: payload._id });
         if (!userExist) throw new UnauthorizedException("user not found");
         request.user = userExist;
+        console.log({ user: request.user })
         //todo:: refresh
 
 

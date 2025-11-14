@@ -1,19 +1,17 @@
-import { comperePassword } from '@common/helper/hash.helper';
-import { EmailService } from '@model/email/email.service';
+import { comperePassword } from '@common/index';
+import { UserRepository } from '@model/index';
+import { EmailService } from '@module/index';
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { CustomerRepository } from './../../model/customer/customer.repository';
 import { LoginDto } from './dto/login-auth.dto';
 import { Customer } from './entities/auth.entity';
 // import { ConfigService } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UserRepository } from '@model/index';
 
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly customerRepository: CustomerRepository,
-        private readonly userRepository:UserRepository,
+        private readonly userRepository: UserRepository,
         private readonly sendMail: EmailService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService

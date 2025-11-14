@@ -14,7 +14,7 @@ export class CategoryController {
   ) { }
 
   @Post("")
-  async create(@Body() createCategoryDto: CreateCategoryDto, @User() user) {
+  async create(@Body() createCategoryDto: CreateCategoryDto, @User() user:any) {
     const category = this.categoryFactoryService.createCategory(createCategoryDto, user);
     const createdCategory = await this.categoryService.create(category);
     return {
@@ -31,8 +31,8 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
-  @Public()
   @Get(':id')
+  @Public()
   async findOne(@Param('id') id: string) {
     const category = await this.categoryService.findOne(id);
     return {
@@ -45,7 +45,7 @@ export class CategoryController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @User() user) {
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @User() user:any) {
     const category = await this.categoryFactoryService.updateCategory(id, updateCategoryDto, user);
     const updateCategory = await this.categoryService.update(id, category);
     return {

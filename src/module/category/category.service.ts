@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { CategoryRepository } from './../../model/category/category.repository';
+import { CategoryRepository } from '@model/index';
 import { Category } from './entities/category.entity';
 
 @Injectable()
@@ -29,7 +29,10 @@ export class CategoryService {
   async update(id: string, category: Category) {
     const categoryExist = await this.categoryRepository.getOne({ slug: category.slug, _id: { $ne: id } });
     if (categoryExist) throw new ConflictException("category already exist");
-    return await this.categoryRepository.updateOne({ _id: id }, categoryExist!, { new: true });
+    const { _id, ...update } = category;
+    return await this.categoryRepository.updateOne({ _id: id }, { $set: update }, { new: true });
+
+
   }
 
   remove(id: number) {

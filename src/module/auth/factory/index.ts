@@ -1,8 +1,7 @@
-import { hashPassword } from '@common/helper/hash.helper';
+import { expiredOtp, generateOtp, hashPassword } from '@common/index';
+import { Injectable } from '@nestjs/common';
 import { Customer } from '../entities/auth.entity';
 import { RegisterDto } from './../dto/register-auth.dto';
-import { expiredOtp, generateOtp } from '@common/helper';
-import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AuthFactoryService {
 

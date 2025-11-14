@@ -1,10 +1,10 @@
+import { EmailService } from '@module/index';
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { UserMongoModule } from 'src/shared';
-import { AuthFactoryService } from './factory';
-import { EmailService } from '@model/email/email.service';
 import { JwtService } from '@nestjs/jwt';
+import { UserMongoModule } from '@shared/index';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { AuthFactoryService } from './factory';
 
 @Module({
   imports: [UserMongoModule],

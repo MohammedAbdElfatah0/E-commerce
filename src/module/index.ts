@@ -2,8 +2,10 @@
 export * from "@module/auth/auth.controller";
 export * from "@module/auth/auth.module";
 export * from "@module/auth/auth.service";
-//
+//email
 
+export * from '@module/email/email.module';
+export * from '@module/email/email.service';
 
 //brand
 export * from "@module/brand/brand.controller";

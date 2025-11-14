@@ -1,1 +1,1 @@
-export * from "./module/user.mongo.module"
+export * from "./module/index";

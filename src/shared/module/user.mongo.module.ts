@@ -1,8 +1,9 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { Seller, sellerSchema, User, userSchema, Customer, customerSchema, SellerRepository, CustomerRepository } from "src/model";
+import { Seller, sellerSchema, User, userSchema, Customer, customerSchema, SellerRepository, CustomerRepository } from "@model/index";
 
 import { UserRepository } from './../../model/common/user.repository';
+import { Admin, adminSchema } from "@model/admin/admin.schema";
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -11,8 +12,8 @@ import { UserRepository } from './../../model/common/user.repository';
                 schema: userSchema,
                 discriminators: [
                     { name: Seller.name, schema: sellerSchema },
-                    { name: Customer.name, schema: customerSchema }
-                    // {name:Admin.name,schema:adminSchema},
+                    { name: Customer.name, schema: customerSchema },
+                    { name: Admin.name, schema: adminSchema },
                 ]
             }
         ])

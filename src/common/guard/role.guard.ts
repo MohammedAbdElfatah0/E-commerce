@@ -15,7 +15,8 @@ export class RolesGuards implements CanActivate {
     canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest();
         const roles = this.reflector.getAllAndMerge(Roles, [context.getHandler(), context.getClass()])
-        const Public = this.reflector.get(PUBLIC, context.getHandler);
+        const Public = this.reflector.get(PUBLIC, context.getHandler());
+        console.log("public in role",Public)
         if (Public) return true;
         if (!roles.includes(request.user.role)) throw new UnauthorizedException("you are Not Allow");
         return true;

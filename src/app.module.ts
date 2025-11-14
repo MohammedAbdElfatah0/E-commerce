@@ -1,13 +1,13 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter } from '@common/index';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configLoad from "./config/env/dev.env";
 import { AuthModule, BrandModule, CategoryModule, ProductModule } from './module';
-import { APP_FILTER, APP_PIPE } from '@nestjs/core';
-import { HttpExceptionFilter } from '@common/filters';
-// import { ValidationPipe } from '@common/pipes';
+
 @Module({
   imports: [
     //import file .env
