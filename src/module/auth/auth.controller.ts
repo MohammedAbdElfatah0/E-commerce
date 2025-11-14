@@ -1,34 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { RegisterDto } from './dto/register-auth.dto';
+import { AuthFactoryService } from './factory/index';
+import { LoginDto } from './dto/login-auth.dto';
+import { AuthGuard } from '@common/guard';
 
 @Controller('auth')
+
+
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly authFactoryService: AuthFactoryService,
+  ) { }
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('/register')
+  public async register(@Body() registerDto: RegisterDto) {
+    const customer = await this.authFactoryService.createCustomer(registerDto);
+    const createCustomer = await this.authService.register(customer);
+    return {
+      message: "done created User and send email",
+      success: true,
+      date: createCustomer
+    };
+  }
+  //todo  confirm email
+
+
+  @Post('/login')
+  public async login(@Body() loginDto: LoginDto) {
+    const { accessToken, refreshToken } = await this.authService.login(loginDto);
+    return {
+      message: "login successfully",
+      success: true,
+      data: { accessToken, refreshToken }
+    }
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
 }

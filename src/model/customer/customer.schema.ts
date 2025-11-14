@@ -1,16 +1,19 @@
-import { Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Types } from "mongoose";
 
 @Schema({ timestamps: true, discriminatorKey: "role", toJSON: { virtuals: true } })
 export class Customer {
+    readonly _id: Types.ObjectId;
+    userName: string;
+    email: string;
+    password: string;
+    otp: string;
+    otpExpiry: Date;
+    isVerified: boolean;
 
-    name: string
+    @Prop({ type: Date })
+    dob: Date;
 
-    email: string
-
-    password: string
-
-
-    
 }
 //
 export const customerSchema = SchemaFactory.createForClass(Customer); 

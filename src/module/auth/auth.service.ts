@@ -1,26 +1,63 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { comperePassword } from '@common/helper/hash.helper';
+import { EmailService } from '@model/email/email.service';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CustomerRepository } from './../../model/customer/customer.repository';
+import { LoginDto } from './dto/login-auth.dto';
+import { Customer } from './entities/auth.entity';
+// import { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { UserRepository } from '@model/index';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+    constructor(
+        private readonly customerRepository: CustomerRepository,
+        private readonly userRepository:UserRepository,
+        private readonly sendMail: EmailService,
+        private readonly jwtService: JwtService,
+        private readonly configService: ConfigService
+    ) { }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+    public async register(customer: Customer): Promise<Customer> {
+        const customerExist = await this.userRepository.getOne({
+            email: customer.email
+        });
+        if (customerExist) throw new ConflictException("user already exist");
+        const createdCustomer = await this.userRepository.create(customer);
+        //todo send email
+        await this.sendMail.sendEmail(
+            {
+                to: customer.email,
+                subject: "confirm Email",
+                html: `<h1>your Otp is ${customer.otp}</h1>`
+            });
+        const { password, otp, otpExpiry, ...result } = JSON.parse(JSON.stringify(createdCustomer));
+        return result;
+    }
+    //TODO CONFIRM EMAIL
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    public async login(loginDto: LoginDto) {
+        const customerExist = await this.userRepository.getOne({ email: loginDto.email, isVerified: true });
+        //check user exist
+        //isVerify 
+        //compere password
+        const match = await comperePassword(loginDto.password, customerExist?.password || '');
+        if (!customerExist || !match) throw new UnauthorizedException("Invalid credentials");
+        const payload = {
+            _id: customerExist._id,
+            email: customerExist.email,
+        }
+        //generate token 
+        const accessToken = this.jwtService.sign(payload, {
+            secret: this.configService.get('token').access,
+            expiresIn: "15m",
+        });
+        const refreshToken = this.jwtService.sign(payload, {
+            secret: this.configService.get('token').refresh,
+            expiresIn: "15m",
+        });
+        return { accessToken, refreshToken };
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
+    }
 }

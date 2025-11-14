@@ -1,15 +1,29 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Auth, Public, User } from '@common/decorator';
+
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CategoryFactoryService } from './factory/index';
 
 @Controller('category')
+@Auth(['Admin'])
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(private readonly categoryService: CategoryService,
+    private readonly categoryFactoryService: CategoryFactoryService,
+  ) { }
 
-  @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  @Post("")
+  async create(@Body() createCategoryDto: CreateCategoryDto, @User() user) {
+    const category = this.categoryFactoryService.createCategory(createCategoryDto, user);
+    const createdCategory = await this.categoryService.create(category);
+    return {
+      message: "done created successfully",
+      success: true,
+      data: {
+        createdCategory
+      }
+    }
   }
 
   @Get()
@@ -17,14 +31,30 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
+  @Public()
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const category = await this.categoryService.findOne(id);
+    return {
+      message: 'done',
+      success: true,
+      data: {
+        category
+      }
+    }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoryService.update(+id, updateCategoryDto);
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @User() user) {
+    const category = await this.categoryFactoryService.updateCategory(id, updateCategoryDto, user);
+    const updateCategory = await this.categoryService.update(id, category);
+    return {
+      message: "updated successfully",
+      success: true,
+      date: {
+        updateCategory
+      }
+    }
   }
 
   @Delete(':id')
