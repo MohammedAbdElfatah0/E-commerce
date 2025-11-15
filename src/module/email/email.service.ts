@@ -6,7 +6,10 @@ import * as nodemailer from 'nodemailer';
 export class EmailService {
   private transporter;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService
+  
+  ) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {

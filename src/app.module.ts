@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configLoad from "./config/env/dev.env";
 import { AuthModule, BrandModule, CategoryModule, ProductModule } from './module';
+import { CommenModule } from '@shared/module/commen.module';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { AuthModule, BrandModule, CategoryModule, ProductModule } from './module
       })
     }),
 
-
+    CommenModule,
     AuthModule,
     BrandModule,
     ProductModule,
@@ -35,7 +36,7 @@ import { AuthModule, BrandModule, CategoryModule, ProductModule } from './module
   controllers: [AppController],
   providers: [AppService,
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
-  
+
   ],
 })
 export class AppModule { }
