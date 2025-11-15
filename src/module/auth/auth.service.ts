@@ -1,5 +1,5 @@
 import { comperePassword } from '@common/index';
-import { UserRepository } from '@model/index';
+import { ProductRepository } from '@model/index';
 import { EmailService } from '@module/index';
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,7 +10,7 @@ import { Customer } from './entities/auth.entity';
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly userRepository: UserRepository,
+        private readonly userRepository: ProductRepository,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         // @Inject(forwardRef(() => EmailService)) // solve import from index if email next auth 
