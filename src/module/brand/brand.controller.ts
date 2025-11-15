@@ -4,6 +4,7 @@ import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { BrandFactoryService } from './factory';
+import { message } from '@common/constant';
 
 @Controller('brand')
 @Auth(['Admin'])
@@ -14,9 +15,14 @@ export class BrandController {
   ) { }
 
   @Post()
-  create(@Body() createBrandDto: CreateBrandDto, @User() user: any) {
+  async create(@Body() createBrandDto: CreateBrandDto, @User() user: any) {
     const brand = this.brandFactoryService.createBrand(createBrandDto, user);
-    // return this.brandService.create();
+    const brandCreated = await this.brandService.create(brand);
+    return {
+      success: true,
+      message: message.Brand.created,
+      data: brandCreated,
+    }
   }
 
   @Get()
