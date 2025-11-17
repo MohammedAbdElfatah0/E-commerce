@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryRepository } from '@model/index';
 import { Category } from './entities/category.entity';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class CategoryService {
@@ -18,7 +19,7 @@ export class CategoryService {
     return `This action returns all category`;
   }
 
-  async findOne(id: string) {
+  async findOne(id: string | Types.ObjectId) {
     const category = await this.categoryRepository.getOne({ _id: id }, {}, {
       populate: [{ path: 'createdBy' }, { path: 'updatedBy' }]
     });

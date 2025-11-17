@@ -4,7 +4,7 @@ import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { BrandFactoryService } from './factory';
-import { message } from '@common/constant';
+import { MESSAGE } from '@common/constant';
 
 @Controller('brand')
 @Auth(['Admin'])
@@ -20,7 +20,7 @@ export class BrandController {
     const brandCreated = await this.brandService.create(brand);
     return {
       success: true,
-      message: message.Brand.created,
+      message: MESSAGE.Brand.created,
       data: brandCreated,
     }
   }
@@ -32,7 +32,7 @@ export class BrandController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.brandService.findOne(+id);
+    return this.brandService.findOne(id);
   }
 
   @Patch(':id')

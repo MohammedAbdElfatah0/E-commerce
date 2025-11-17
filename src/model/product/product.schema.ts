@@ -1,14 +1,12 @@
+import { DiscountType } from "@common/helper/enum/index";
 import { Prop, Schema, SchemaFactory, Virtual } from "@nestjs/mongoose";
 import { SchemaTypes, Types } from "mongoose";
 
-enum DiscountType {
-    fixed_amount,
-    precentage
-}
 
 
 @Schema({ timestamps: true, })
 export class Product {
+    readonly _id: Types.ObjectId;
     @Prop({ type: String, required: true, trim: true })
     name: string;
     @Prop({ type: String, required: true, trim: true })
@@ -36,8 +34,9 @@ export class Product {
     })
     finalPrice: number;//*virtual field
     @Prop({ type: Number, default: 0, min: 0 })
+
     discountAmount: number;
-    @Prop({ type: String, enum: DiscountType, default: DiscountType.fixed_amount, })
+    @Prop({ type: String, enum: DiscountType, default: DiscountType.fixed_amount })
     discountType: DiscountType;
     @Prop({ type: Number, default: 1, min: 0 })//defealt create 1 ,why min :0 >> for buy 1? 0
     stock: number;
