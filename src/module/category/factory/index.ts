@@ -1,4 +1,4 @@
-import { CategoryRepository, User } from "@model/index";
+import { CategoryRepository, User } from "src/DB/model/index";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import slugify from "slugify";
 import { UpdateCategoryDto } from "../dto/update-category.dto";

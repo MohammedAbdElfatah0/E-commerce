@@ -1,4 +1,4 @@
-import { DiscountType } from "@common/helper/enum";
+import { DiscountType } from "@common/utils/enum";
 import { Types } from "mongoose";
 
 export class Product {

@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { CategoryRepository } from '@model/index';
+import { CategoryRepository } from 'src/DB/model/index';
 import { Category } from './entities/category.entity';
 import { Types } from 'mongoose';
 

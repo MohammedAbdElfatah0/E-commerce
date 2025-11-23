@@ -1,7 +1,7 @@
 import slugify from "slugify";
 import { CreateProductDto } from "../dto/create-product.dto";
 import { Product } from "../entities/product.entity";
-import { User } from "@model/index";
+import { User } from "src/DB/model/index";
 import { Types } from "mongoose";
 
 export class ProdcutFactoryService {

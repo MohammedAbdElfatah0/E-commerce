@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ProductService } from './product.service';
+import { MESSAGE } from '@common/constant';
+import { Auth, Public, User } from '@common/decorator';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Auth, User } from '@common/decorator';
 import { ProdcutFactoryService } from './factory';
-import { MESSAGE } from '@common/constant';
+import { ProductService } from './product.service';
 
 @Controller('product')
 @Auth(['Admin', 'Seller  '])
@@ -17,7 +17,7 @@ export class ProductController {
   @Post()
   async create(@Body() createProductDto: CreateProductDto, @User() user: any) {
     const produnt = this.productFactoryService.createProduct(createProductDto, user);
-    const productExist = await this.productService.create(produnt);
+    const productExist = await this.productService.create(produnt, user);
 
     return {
       message: MESSAGE.Product.created,
@@ -34,13 +34,29 @@ export class ProductController {
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
+    const product = this.productService.findOne(id)
+    return {
+      success: true,
+      data: {
+        product
+      }
+    }
+
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+
+    // const product=this.productService.update(id,)
+    return {
+      success: true,
+      message: MESSAGE.Product.updated,
+      data: {
+
+      }
+    }
   }
 
   @Delete(':id')

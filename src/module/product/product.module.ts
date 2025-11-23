@@ -1,4 +1,4 @@
-import { Product, ProductRepository, productSchema } from '@model/index';
+import { Product, ProductRepository, productSchema } from 'src/DB/model/index';
 import { BrandModule } from '@module/brand/brand.module';
 import { CategoryModule } from '@module/category/category.module';
 import { Module } from '@nestjs/common';

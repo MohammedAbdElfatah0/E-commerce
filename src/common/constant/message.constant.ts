@@ -2,6 +2,7 @@
 
 const generateMessage = (entity: string) => ({
     notFound: `${entity} not found`,
+    found: `${entity} retrieved successfully`,
     alreadyExist: `${entity} already exist`,
     created: `${entity} created successfully`,
     updated: `${entity} updated successfully`,

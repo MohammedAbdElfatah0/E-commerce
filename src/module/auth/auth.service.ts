@@ -1,5 +1,5 @@
-import { comperePassword } from '@common/index';
-import { UserRepository } from '@model/index';
+import { compereHash } from '@common/index';
+import { UserRepository } from 'src/DB/model/index';
 import { EmailService } from '@module/index';
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -40,7 +40,7 @@ export class AuthService {
         //check user exist
         //isVerify 
         //compere password
-        const match = await comperePassword(loginDto.password, customerExist?.password || '');
+        const match = await compereHash(loginDto.password, customerExist?.password || '');
         if (!customerExist || !match) throw new UnauthorizedException("Invalid credentials");
         const payload = {
             _id: customerExist._id,

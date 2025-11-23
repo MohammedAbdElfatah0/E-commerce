@@ -1,4 +1,4 @@
-import { DiscountType } from "@common/helper/enum/index";
+import { DiscountType } from "@common/utils/enum/index";
 import { Prop, Schema, SchemaFactory, Virtual } from "@nestjs/mongoose";
 import { SchemaTypes, Types } from "mongoose";
 

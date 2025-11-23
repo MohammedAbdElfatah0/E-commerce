@@ -1,4 +1,4 @@
-import { expiredOtp, generateOtp, hashPassword } from '@common/index';
+import { expiredOtp, generateOtp, generatedHash } from '@common/index';
 import { Injectable } from '@nestjs/common';
 import { Customer } from '../entities/auth.entity';
 import { RegisterDto } from './../dto/register-auth.dto';
@@ -11,7 +11,7 @@ export class AuthFactoryService {
 
         customer.userName = registerDto.userName;
         customer.email = registerDto.email;
-        customer.password = await hashPassword(registerDto.password);
+        customer.password = await generatedHash(registerDto.password);
         customer.otp = generateOtp().toString();
         customer.otpExpiry = expiredOtp(10);
         customer.isVerified = false;

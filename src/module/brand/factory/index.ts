@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { CreateBrandDto } from "../dto/create-brand.dto";
 import { Brand } from "../entities/brand.entity";
 import slugify from "slugify";
-import { User } from "@model/index";
+import { User } from "src/DB/model/index";
 
 @Injectable()
 export class BrandFactoryService {

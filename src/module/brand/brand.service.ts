@@ -1,4 +1,4 @@
-import { BrandRepository } from '@model/index';
+import { BrandRepository } from 'src/DB/model/index';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { Brand } from './entities/brand.entity';

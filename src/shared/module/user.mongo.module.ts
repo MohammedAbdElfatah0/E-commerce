@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { Seller, sellerSchema, User, userSchema, Customer, customerSchema, SellerRepository, CustomerRepository } from "@model/index";
+import { Seller, sellerSchema, User, userSchema, Customer, customerSchema, SellerRepository, CustomerRepository } from "src/DB/model/index";
 
-import { UserRepository } from './../../model/common/user.repository';
-import { Admin, adminSchema } from "@model/admin/admin.schema";
+import { UserRepository } from '../../DB/model/common/user.repository';
+import { Admin, adminSchema } from "src/DB/model/admin/admin.schema";
 @Module({
     imports: [
         MongooseModule.forFeature([

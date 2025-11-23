@@ -1,10 +1,10 @@
 import * as bcrypt from "bcrypt"
 const saltOrRounds: number = 10;
 //hash
-export const hashPassword = async (password: string) => {
+export const generatedHash = async (password: string): Promise<string> => {
     return await bcrypt.hash(password, saltOrRounds);
 }
 //verify password
-export const comperePassword = async (password: string, inputPassword: string) => {
+export const compereHash = async (password: string, inputPassword: string): Promise<boolean> => {
     return await bcrypt.compare(password, inputPassword);
 }

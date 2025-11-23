@@ -1,4 +1,4 @@
-import { AbstractRepository } from "@model/abstract.repository";
+import { AbstractRepository } from "src/DB/model/abstract.repository";
 import { Brand } from "./brand.schema";
 import { Model } from "mongoose";
 import { Injectable } from "@nestjs/common";

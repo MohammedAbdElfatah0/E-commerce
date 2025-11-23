@@ -1,4 +1,4 @@
-import { Brand, BrandRepository, brandSchema } from '@model/index';
+import { Brand, BrandRepository, brandSchema } from 'src/DB/model/index';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserMongoModule } from '@shared/module';

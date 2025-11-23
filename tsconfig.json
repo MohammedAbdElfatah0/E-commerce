@@ -24,7 +24,7 @@
     "paths": {
       "@config/*":["src/config/*"],
       "@common/*":["src/common/*"],
-      "@model/*":["src/model/*"],
+      "@model/*":["src/DB/model/*"],
       "@module/*":["src/module/*"],
       "@shared/*":["src/shared/*"],
     }

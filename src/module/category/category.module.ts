@@ -1,4 +1,4 @@
-import { Category, CategoryRepository, categorySchema } from '@model/index';
+import { Category, CategoryRepository, categorySchema } from 'src/DB/model/index';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserMongoModule } from '@shared/index';

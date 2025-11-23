@@ -13,6 +13,9 @@ export * from "./customer/customer.schema";
 //admin
 export * from "./admin/admin.repository";
 export * from "./admin/admin.schema";
+//token
+export * from "./token/token.repository";
+export * from "./token/token.schema";
 
 //category
 export * from "./category/category.repository";
