@@ -80,9 +80,6 @@ export class AuthController {
   //LOGIN WITH GOOGLE AND SIGN UP WITH GOOGLE ONE METHOD SERVICE ::
   @Post('/google/login')
   public async googleLogin(@Body('idToken') idToken: string) {
-
-    console.log({ idToken });
-    console.log("will loginnn.........................................😢😢😢😢")
     const { accessToken, refreshToken } = await this.authService.googleLogin(idToken);
     return {
       message: "login with google successfully",

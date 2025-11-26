@@ -27,10 +27,7 @@ export class AuthService {
         private readonly oAuth2: OAuth2Client,
         private readonly configService: ConfigService,
     ) {
-        // const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID')?.split(',');
-        // const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET'); // مش ضروري للـ ID token بس عادي
-
-        this.googleClient = new OAuth2Client();
+        this.googleClient = new OAuth2Client(this.configService.get('google').clientId);
     }
     private checkUser = async (email: string) => {
         const customerExist = await this.userRepository.getOne({ email });
@@ -183,11 +180,7 @@ export class AuthService {
             // const clientIds = this.configService.get<string>('GOOGLE_CLIENT_ID').split(',');
             const ticket = await this.googleClient.verifyIdToken({
                 idToken,
-                audience: [
-                    '495019556896-sh758oq4brqktu9l72f6bae2jgjbrqi3.apps.googleusercontent.com',  // Web الجديد
-                    '495019556896-6cki0urpueqin3nbdmap1bevkjkbs5eg.apps.googleusercontent.com',     // Android
-                    '495019556896-7pcfi6a0tkuvojn3etjl51u0kgsota26.apps.googleusercontent.com', // القديم (اللي لسه التوكن صادر له)
-                ], // مهم جدًا يكون نفس الـ client_id اللي في Google Console
+                // audience:// مهم جدًا يكون نفس الـ client_id اللي في Google Console
             });
 
             const payload = ticket.getPayload();
@@ -196,13 +189,12 @@ export class AuthService {
                 throw new UnauthorizedException('Invalid Google token payload');
             }
 
-            const { email, given_name, family_name, sub, email_verified } = payload;
+            const { email, given_name, family_name, email_verified } = payload;
 
             if (!email_verified) {
                 throw new UnauthorizedException('Google email not verified');
             }
 
-            // الباقي زي ما هو (جيب اليوزر أو اعمله create)
             // get or create user
             let user = await this.userRepository.getOne({ email });
 
@@ -215,10 +207,9 @@ export class AuthService {
                     isVerified: true,
                     confirmEmail: new Date(),
                 });
-                const dataPayload = user;
-                return this.generateTokens({ id: user._id, payload: dataPayload });
+                return this.generateTokens({ id: user._id, payload: { _id: user._id } });
             }
-            return this.generateTokens({ id: user._id, payload });
+            return this.generateTokens({ id: user._id, payload: { _id: user._id } });
         } catch (error) {
             console.error('Google token verification failed:', error.message);
             throw new UnauthorizedException(`Invalid or expired Google token ${error.message}`);
