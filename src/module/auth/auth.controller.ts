@@ -1,8 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Headers, Patch, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { ConfirmEmailDto, ResendOtpDto } from './dto';
 import { LoginDto } from './dto/login-auth.dto';
 import { RegisterDto } from './dto/register-auth.dto';
 import { AuthFactoryService } from './factory/index';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 
@@ -11,6 +14,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly authFactoryService: AuthFactoryService,
+    private readonly confilgService: ConfigService,
   ) { }
 
   @Post('/register')
@@ -19,21 +23,79 @@ export class AuthController {
     const createCustomer = await this.authService.register(customer);
     return {
       message: "done created User and send email",
-      success: true,
-      date: createCustomer
+      data: createCustomer
     };
   }
-  //todo  confirm email
+
+  @Patch('/confirm-email')
+  public async confirmEmail(@Body() confirmEmailDto: ConfirmEmailDto) {
+    await this.authService.confirmEmail(confirmEmailDto);
+    return {
+      message: "Email confirmed successfully",
+    };
+  }
+  @Patch('/resend-otp')
+  public async resendOtp(@Body() resendOtpDto: ResendOtpDto) {
+    await this.authService.resendOtp(resendOtpDto);
+    return {
+      message: "OTP resent successfully",
+    };
+  }
 
 
   @Post('/login')
-  public async login(@Body() loginDto: LoginDto) {
+  public async login(@Body() loginDto: LoginDto,) {
+
     const { accessToken, refreshToken } = await this.authService.login(loginDto);
     return {
       message: "login successfully",
-      success: true,
       data: { accessToken, refreshToken }
     }
+  }
+  @Patch('logout')
+  @UsePipes(new ValidationPipe({ validateCustomDecorators: true }))
+  public async logout(@Headers('Authorization') authorization: string) {
+    if (!authorization) {
+      throw new BadRequestException("Authorization header is missing");
+    }
+
+
+    const message = await this.authService.logout(authorization);
+    return {
+      message
+    };
+  }
+  @Put('/refresh-token')
+  public async refreshToken(@Headers('Authorization') authorization: string) {
+    if (!authorization) {
+      throw new BadRequestException("Authorization header is missing");
+    }
+    const { accessToken } = await this.authService.refreshToken(authorization);
+    return {
+      message: "token refreshed successfully",
+      data: { accessToken }
+    }
+
+  }
+  //LOGIN WITH GOOGLE AND SIGN UP WITH GOOGLE ONE METHOD SERVICE ::
+  @Post('/google/login')
+  public async googleLogin(@Body('idToken') idToken: string) {
+
+    console.log({ idToken });
+    console.log("will loginnn.........................................😢😢😢😢")
+    const { accessToken, refreshToken } = await this.authService.googleLogin(idToken);
+    return {
+      message: "login with google successfully",
+      data: { accessToken, refreshToken }
+    }
+  }
+  @Patch('/reset-password')
+  public async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+
+    const message = await this.authService.resetPassword(resetPasswordDto);
+    return {
+      message,
+    };
   }
 
 

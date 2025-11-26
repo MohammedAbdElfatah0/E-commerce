@@ -1,0 +1,4 @@
+export enum emailType {
+    CONFIRM_EMAIL = "CONFIRM_EMAIL",
+    RESET_PASSWORD = "RESET_PASSWORD",
+}

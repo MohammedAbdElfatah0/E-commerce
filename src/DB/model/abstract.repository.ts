@@ -5,9 +5,9 @@ export class AbstractRepository<T> {
         protected readonly model: Model<T>
     ) { }
 
-    public async create(item: Partial<T>) {
+    public async create(item: Partial<T>): Promise<HydratedDocument<T>> {
         const doc = new this.model(item);
-        return doc.save();
+        return doc.save() as Promise<HydratedDocument<T>>;
     }
 
     public async getOne(

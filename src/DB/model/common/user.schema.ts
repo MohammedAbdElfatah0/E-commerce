@@ -30,7 +30,7 @@ export class User {
     email: string;
 
     @Prop({ type: Date, required: false, })
-    confrimEmail: Date;
+    confirmEmail: Date;
 
 
     @Prop({ type: Date, required: false, default: Date.now })

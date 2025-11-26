@@ -1,21 +1,20 @@
 import { Type } from "class-transformer";
 import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Min, MinLength } from "class-validator";
+import { LoginDto } from "./login-auth.dto";
 
 
-export class RegisterDto {
+export class RegisterDto extends LoginDto {
+    //*include email and password 
 
     @IsString({ message: "it's must be string " })
     @IsNotEmpty({ message: "It's required" })
     @MinLength(3, { message: "min character is 3", })
-    userName: string;
-
-    @IsEmail()
-    @IsNotEmpty({ message: "It's required" })
-    email: string;
-
+    firstName: string;
+    
     @IsString({ message: "it's must be string " })
     @IsNotEmpty({ message: "It's required" })
-    password: string;
+    @MinLength(3, { message: "min character is 3", })
+    lastName: string;
 
     @Type(() => Date)
     @IsDate({ message: "It's Date type" })

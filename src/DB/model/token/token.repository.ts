@@ -6,8 +6,12 @@ import { Token } from "./token.schema";
 @Injectable()
 export class TokenRepository extends AbstractRepository<Token> {
     constructor(
-        @InjectModel(Token.name) token: Model<Token>,
+        @InjectModel(Token.name)private readonly token: Model<Token>,
     ) {
         super(token);
     }
+
+     revoke(token: string) {
+    return this.token.updateOne({ token }, { isRevoked: true });
+  }
 }

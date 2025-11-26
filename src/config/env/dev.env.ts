@@ -23,6 +23,10 @@ export default () => (
             expiredAccess:process.env.JWT_EXPIRATION,
             expiredRefresh:process.env.JWT_REFRESH_EXPIRATION,
 
+        },
+        google:{
+            clientId:process.env.GOOGLE_CLIENT_ID,
+            clientSecret:process.env.GOOGLE_CLIENT_SECRET,
         }
 
     });

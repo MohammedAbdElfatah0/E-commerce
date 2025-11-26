@@ -10,8 +10,8 @@ export class TransformInterceptor implements NestInterceptor {
 
     const method = request.method; // GET | POST | PUT | PATCH | DELETE
     const path = request.route.path; // "/category/:id"
-    
-    
+
+
     const entity = path.split('/')[1]?.replace(':id', '');
 
     let action: keyof typeof MESSAGE.Category = 'updated';
@@ -31,16 +31,27 @@ export class TransformInterceptor implements NestInterceptor {
         action = 'deleted';
         break;
     }
-
     return next.handle().pipe(
-      map((data) => ({
-        success: true,
-        message: MESSAGE[capitalize(entity)]?.[action] ?? null,
-        data,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      }))
+      map((data: any) => {
+        // لو في data.message تبع الرسالة الخاصة
+        const customMessage = data?.message;
+        if (data && data.message) {
+          const { message, ...restData } = data;
+          data = restData;
+        }
+        if (data?.data) {
+          data = data.data;
+        }
+        return {
+          success: true,
+          message: customMessage ?? MESSAGE[capitalize(entity)]?.[action] ?? null,
+          data,
+          timestamp: new Date().toISOString(),
+          path: request.url,
+        };
+      })
     );
+
   }
 }
 
