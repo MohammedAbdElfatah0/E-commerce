@@ -1,6 +1,6 @@
 import { Auth, Public, User } from '@common/decorator';
 
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -14,7 +14,7 @@ export class CategoryController {
   ) { }
 
   @Post("")
-  async create(@Body() createCategoryDto: CreateCategoryDto, @User() user:any) {
+  async create(@Body() createCategoryDto: CreateCategoryDto, @User() user: any) {
     const category = this.categoryFactoryService.createCategory(createCategoryDto, user);
     const createdCategory = await this.categoryService.create(category);
     return {
@@ -27,6 +27,7 @@ export class CategoryController {
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.categoryService.findAll();
   }
@@ -45,7 +46,7 @@ export class CategoryController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @User() user:any) {
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @User() user: any) {
     const category = await this.categoryFactoryService.updateCategory(id, updateCategoryDto, user);
     const updateCategory = await this.categoryService.update(id, category);
     return {
@@ -58,7 +59,7 @@ export class CategoryController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(+id);
+  remove(@Param('id') id: string, @User() user: any) {
+    return this.categoryService.remove(id,user);
   }
 }

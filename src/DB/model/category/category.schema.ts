@@ -12,7 +12,13 @@ export class Category {
     createdBy: Types.ObjectId;
     @Prop({ type: SchemaTypes.ObjectId, ref: "Admin", required: true })
     updatedBy: Types.ObjectId;
+    @Prop({ type: Date })
+    deletedAt: Date;
+    @Prop({ type: Types.ObjectId, ref: 'Admin' })
+    deletedBy: Types.ObjectId;
+
     logo: object;
 
 }
 export const categorySchema = SchemaFactory.createForClass(Category);
+categorySchema.index({ deletedAt: 1 }, { expireAfterSeconds:60*60*24});

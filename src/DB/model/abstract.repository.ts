@@ -1,4 +1,4 @@
-import { Model, HydratedDocument, RootFilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
+import { Model, HydratedDocument, RootFilterQuery, ProjectionType, QueryOptions, UpdateQuery, Types } from "mongoose";
 
 export class AbstractRepository<T> {
     constructor(
@@ -27,5 +27,28 @@ export class AbstractRepository<T> {
             new: true,
             ...option,
         });
+    }
+
+    public async getAll(
+        filter: RootFilterQuery<T>,
+        updateQuery: UpdateQuery<T>,
+        option?: QueryOptions): Promise<HydratedDocument<T>[] | null> {
+        return this.model.find(filter, updateQuery, option);
+    }
+    //soft delete as update in doc of schema field "deletedAt"
+    public async softDeleteOne(
+        id: string | Types.ObjectId, updateQuery: UpdateQuery<T>,
+    ): Promise<T | null> {
+        return this.model.findOneAndUpdate(
+            { _id: id },
+            updateQuery,
+            {
+                new: true,
+            })
+    }
+
+    public async hardDelete(id: string | Types.ObjectId): Promise<boolean> {
+        const result = await this.model.deleteOne({ _id: id });
+        return result.deletedCount > 0;
     }
 }
