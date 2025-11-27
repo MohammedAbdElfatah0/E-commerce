@@ -77,7 +77,6 @@ export class AuthService {
 
         // return result;
         const response = plainToInstance(RegisterResponse, repsonseCutomer);
-        console.log({ response });
         return response;
 
     }
@@ -86,7 +85,6 @@ export class AuthService {
 
         //check user exist
         const customerExist = await this.checkUser(resendOtpDto.email);
-        console.log({ customerExist });
         //calcalate time to expire
         const now = new Date();
         if (customerExist.otpExpiry > now) {
@@ -165,7 +163,6 @@ export class AuthService {
     }
 
     async googleLogin(idToken: string): Promise<{ accessToken: string, refreshToken: string }> {
-        console.log('Verifying Google ID token...');
 
         try {
             // const clientIds = this.configService.get<string>('GOOGLE_CLIENT_ID').split(',');
@@ -174,7 +171,6 @@ export class AuthService {
             });
 
             const payload = ticket.getPayload();
-            console.log({ payload });
             if (!payload) {
                 throw new UnauthorizedException('Invalid Google token payload');
             }
@@ -200,7 +196,6 @@ export class AuthService {
             }
             return this.generateTokens({ id: user._id, payload: { _id: user._id } });
         } catch (error) {
-            console.error('Google token verification failed:', error.message);
             throw new UnauthorizedException(`Invalid or expired Google token ${error.message}`);
         }
     }
