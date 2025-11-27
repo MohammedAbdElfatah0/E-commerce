@@ -1,19 +1,13 @@
-import { compereHash, emailType, expiredOtp, generatedHash, generateOtp, userProvider } from '@common/utils';
-import { TokenService } from '@common/utils/token/token.service';
+import { compereHash, emailType, expiredOtp, generatedHash, generateOtp, TokenService, userProvider } from '@common/utils';
+import { TokenRepository, User, UserRepository } from '@model/index';
 import { EmailService } from '@module/index';
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
-import { TokenRepository, User, UserRepository } from 'src/DB/model/index';
-import { ConfirmEmailDto } from './dto';
-import { LoginDto } from './dto/login-auth.dto';
-import { ResendOtpDto } from './dto/resend.otp-auth.dto';
-import { Customer } from './entities/auth.entity';
-import { RegisterResponse } from './entities/response/register.response';
-import { console } from 'inspector';
-import { OAuth2Client } from "google-auth-library"
 import { ConfigService } from '@nestjs/config';
+import { plainToInstance } from 'class-transformer';
+import { OAuth2Client } from "google-auth-library";
 import { Types } from 'mongoose';
-import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ConfirmEmailDto, LoginDto, ResendOtpDto, ResetPasswordDto } from './dto';
+import { Customer, RegisterResponse } from './entities';
 
 @Injectable()
 export class AuthService {
@@ -24,16 +18,18 @@ export class AuthService {
         private readonly tokenRepo: TokenRepository,
         // @Inject(forwardRef(() => EmailService)) // solve import from index if email next auth 
         private readonly sendMail: EmailService,
-        private readonly oAuth2: OAuth2Client,
         private readonly configService: ConfigService,
     ) {
         this.googleClient = new OAuth2Client(this.configService.get('google').clientId);
     }
-    private checkUser = async (email: string) => {
+
+
+    private checkUser = async (email: string): Promise<User> => {
         const customerExist = await this.userRepository.getOne({ email });
         if (!customerExist) throw new UnauthorizedException("Invalid credentials");
         return customerExist;
     }
+
     private async sendOtpEmail(type: string, email: string, otp: string): Promise<void> {
         switch (type) {
             case emailType.CONFIRM_EMAIL: await this.sendMail.sendEmail({
@@ -50,9 +46,10 @@ export class AuthService {
             });
                 break;
             default:
-                throw new Error("Invalid email type");
+                throw new ConflictException("Invalid email type");
         }
     }
+
     private async generateTokens({ id, payload }: { id: Types.ObjectId, payload: Partial<User> }):
         Promise<{ accessToken: string, refreshToken: string }> {
         const accessToken =
@@ -63,13 +60,13 @@ export class AuthService {
     }
 
 
-    //todo hash otp
+
     public async register(customer: Customer): Promise<RegisterResponse> {
         const customerExist = await this.userRepository.getOne({
             email: customer.email
         });
         if (customerExist) throw new ConflictException("user already exist");
-        const createdCustomer = await this.userRepository.create(customer);
+        const createdCustomer = await this.userRepository.create({ ...customer, otp: await generatedHash(customer.otp) });
         await this.sendMail.sendEmail(
             {
                 to: customer.email,
@@ -84,7 +81,7 @@ export class AuthService {
         return response;
 
     }
-    //todo RESEND OTP
+
     public async resendOtp(resendOtpDto: ResendOtpDto): Promise<{ message: string }> {
 
         //check user exist
@@ -92,18 +89,17 @@ export class AuthService {
         console.log({ customerExist });
         //calcalate time to expire
         const now = new Date();
-        const expire = customerExist.otpExpiry?.getTime() ?? now.getTime() - now.getTime();
-        const time = Math.floor(expire / 1000);
-        //otp is expired
-
-        if (customerExist.otpExpiry! > now) throw new UnauthorizedException(`OTP is not expired yet,wait to expire,${time} seconds left`);
+        if (customerExist.otpExpiry > now) {
+            const secondsLeft = Math.floor((customerExist.otpExpiry.getTime() - now.getTime()) / 1000);
+            throw new UnauthorizedException(`OTP is not expired yet,wait to expire,${secondsLeft} seconds left`)
+        };
         //generate new otp
         customerExist.otp = generateOtp().toString();
         customerExist.otpExpiry = expiredOtp(5);
         //save otp
         await this.userRepository.updateOne(
             { _id: customerExist._id },
-            { $set: { otp: customerExist.otp, otpExpiry: customerExist.otpExpiry } });
+            { $set: { otp: await generatedHash(customerExist.otp), otpExpiry: customerExist.otpExpiry } });
 
         //send email
         if (customerExist.isVerified) {
@@ -120,7 +116,7 @@ export class AuthService {
         if (!customerExist) throw new UnauthorizedException("Invalid credentials or email already verified");
         if (customerExist.isVerified) throw new UnauthorizedException("Email already verified");
         //otp match
-        if (customerExist.otp !== confirmEmailDto.otp) throw new UnauthorizedException("Invalid OTP");
+        if (!await compereHash(confirmEmailDto.otp, customerExist.otp)) throw new UnauthorizedException("Invalid OTP");
         //otp not expired
         if (customerExist.otpExpiry! < new Date()) throw new UnauthorizedException("OTP expired");
         return await this.userRepository.updateOne(
@@ -132,32 +128,28 @@ export class AuthService {
     }
 
     public async login(loginDto: LoginDto): Promise<{ accessToken: string, refreshToken: string }> {
-        //check user exist
+
         const customerExist = await this.checkUser(loginDto.email);
-        //isVerify 
-        //compere password
+        if (!customerExist.isVerified) {
+            throw new UnauthorizedException("pls confirm account")
+        }
         const match = await compereHash(loginDto.password, customerExist?.password || '');
         if (!customerExist || !match) throw new UnauthorizedException("Invalid credentials");
         const payload = {
             _id: customerExist._id,
         }
-        //generate token 
-
         return await this.generateTokens({ id: customerExist._id, payload });
     }
 
-    public async logout(token: string) {
+    public async logout(token: string): Promise<string> {
 
         const tokenExists = await this.tokenRepo.getOne({ token: token });
-        //check token from db ma be expire or not by system
-        // check token is revoke or not
         if (!tokenExists || tokenExists.isRevoked) throw new UnauthorizedException('Invalid refresh token');
 
         const dbToken = await this.tokenService.revokeRefreshToken(token);
         if (!dbToken) throw new UnauthorizedException('Invalid refresh token');
         return 'Logged out successfully';
     }
-    // todo logOut all devices
 
     public async refreshToken(token: string) {
         let payload: User;
@@ -168,19 +160,17 @@ export class AuthService {
         }
         const dbToken = await this.tokenRepo.getOne({ token: token });
         if (!dbToken || dbToken.isRevoked) throw new UnauthorizedException('Refresh token revoked');
-        // generate new access token
         const accessToken = this.tokenService.generateAccessToken({ _id: payload._id });
         return { accessToken };
     }
-    //LOGIN WITH GOOGLE AND SIGN UP WITH GOOGLE ONE METHOD SERVICE ::
-    async googleLogin(idToken: string) {
+
+    async googleLogin(idToken: string): Promise<{ accessToken: string, refreshToken: string }> {
         console.log('Verifying Google ID token...');
 
         try {
             // const clientIds = this.configService.get<string>('GOOGLE_CLIENT_ID').split(',');
             const ticket = await this.googleClient.verifyIdToken({
                 idToken,
-                // audience:// مهم جدًا يكون نفس الـ client_id اللي في Google Console
             });
 
             const payload = ticket.getPayload();
@@ -195,7 +185,6 @@ export class AuthService {
                 throw new UnauthorizedException('Google email not verified');
             }
 
-            // get or create user
             let user = await this.userRepository.getOne({ email });
 
             if (!user) {
@@ -217,24 +206,17 @@ export class AuthService {
     }
     //reset password 
     public async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<string> {
-        //data ---=> email otp new password
-        const { email, otp, newPassword } = resetPasswordDto;
-        //check user exist
-        const customerExist = await this.checkUser(email);
-        //otp match
-        if (customerExist.otp !== otp) throw new UnauthorizedException("Invalid OTP");
-        //otp not expired
+        const customerExist = await this.checkUser(resetPasswordDto.email);
+
+        if (!await compereHash(resetPasswordDto.otp, customerExist.otp)) throw new UnauthorizedException("Invalid OTP");
+
         if (customerExist.otpExpiry! < new Date()) throw new UnauthorizedException("OTP expired,pls resend otp");
-        //hash new password
-        const hashedPassword = await generatedHash(newPassword);
-        //save new password
+
+        const hashedPassword = await generatedHash(resetPasswordDto.newPassword);
         await this.userRepository.updateOne(
             { _id: customerExist._id },
-            { $set: { password: hashedPassword }, $unset: { otp: 1, otpExpiry: 1 } });
+            { $set: { password: hashedPassword, changeCredentialsTime: Date.now() }, $unset: { otp: 1, otpExpiry: 1 } });
         return "Password reset successfully";
     }
-
-
-
 
 }

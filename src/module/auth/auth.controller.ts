@@ -1,11 +1,7 @@
 import { BadRequestException, Body, Controller, Headers, Patch, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ConfirmEmailDto, ResendOtpDto } from './dto';
-import { LoginDto } from './dto/login-auth.dto';
-import { RegisterDto } from './dto/register-auth.dto';
+import { ConfirmEmailDto, LoginDto, RegisterDto, ResendOtpDto, ResetPasswordDto } from './dto';
 import { AuthFactoryService } from './factory/index';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 
@@ -14,7 +10,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly authFactoryService: AuthFactoryService,
-    private readonly confilgService: ConfigService,
   ) { }
 
   @Post('/register')

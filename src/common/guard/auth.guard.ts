@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
         private readonly userRepo: UserRepository,
         private readonly reflector: Reflector,
         private readonly tokenService: TokenService,
-    ) {}
+    ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
@@ -18,7 +18,12 @@ export class AuthGuard implements CanActivate {
         // public
         const isPublic = this.reflector.get(PUBLIC, context.getHandler());
         if (isPublic) return true;
-
+        //todo :give refreshtoken for check changeCredentialsTime
+        /**
+         * get one refresh token and get one user compere time createdAt and changeCredentialsTime
+         * if changeCredentialsTime > createdAt expireToken
+         * make in doc revoke Token
+         */
         // get token
         const { authorization }: { authorization: string } = request.headers;
         if (!authorization) {

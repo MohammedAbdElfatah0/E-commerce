@@ -1,12 +1,12 @@
+import { TokenService } from '@common/utils';
+import { tokenModel, TokenRepository } from '@model/index';
 import { EmailModule } from '@module/index';
 import { Module } from '@nestjs/common';
 import { UserMongoModule } from '@shared/index';
+import { OAuth2Client } from 'google-auth-library';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthFactoryService } from './factory';
-import { TokenService } from '@common/utils/token/token.service';
-import { tokenModel, TokenRepository } from '@model/index';
-import { OAuth2Client } from 'google-auth-library';
 
 @Module({
   imports: [UserMongoModule, EmailModule, tokenModel],
