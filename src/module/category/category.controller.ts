@@ -6,6 +6,10 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryFactoryService } from './factory/index';
 
+
+/**
+ * ToDo validation params
+ */
 @Controller('category')
 @Auth(['Admin'])
 export class CategoryController {
@@ -28,8 +32,9 @@ export class CategoryController {
 
   @Get()
   @Public()
-  findAll() {
-    return this.categoryService.findAll();
+  async findAll() {
+    //some problem if it deleted no result
+    return await this.categoryService.findAll();
   }
 
   @Get(':id')
@@ -50,8 +55,6 @@ export class CategoryController {
     const category = await this.categoryFactoryService.updateCategory(id, updateCategoryDto, user);
     const updateCategory = await this.categoryService.update(id, category);
     return {
-      message: "updated successfully",
-      success: true,
       date: {
         updateCategory
       }
@@ -59,7 +62,7 @@ export class CategoryController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @User() user: any) {
-    return this.categoryService.remove(id,user);
+  async remove(@Param('id') id: string, @User() user: any) {
+    return await this.categoryService.remove(id, user);
   }
 }

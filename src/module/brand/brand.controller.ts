@@ -19,8 +19,6 @@ export class BrandController {
     const brand = this.brandFactoryService.createBrand(createBrandDto, user);
     const brandCreated = await this.brandService.create(brand);
     return {
-      success: true,
-      message: MESSAGE.Brand.created,
       data: brandCreated,
     }
   }

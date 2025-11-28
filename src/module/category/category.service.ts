@@ -19,22 +19,29 @@ export class CategoryService {
   }
 
   async findAll(): Promise<Category[] | null> {
-    // return `This action returns all category`;
-    return await this.categoryRepository.getAll({}, {}, {
-      populate: [{ path: 'createdBy' }, { path: 'updatedBy' }]
-    });
+
+    return await this.categoryRepository.getAll({
+      deletedAt: { $exists: false }
+    },
+      {},
+      {
+        populate: [{ path: 'createdBy', select: "userName email firstName lastName " }, { path: 'updatedBy', select: "userName email firstName lastName " }]
+      });
   }
 
   async findOne(id: string | Types.ObjectId): Promise<Category> {
-    const category = await this.categoryRepository.getOne({ _id: id }, {}, {
-      populate: [{ path: 'createdBy' }, { path: 'updatedBy' }]
-    });
+    const category = await this.categoryRepository.getOne(
+      { _id: id, deletedAt: { $exists: false } },
+      {},
+      {
+        populate: [{ path: 'createdBy', select: "userName email firstName lastName " }, { path: 'updatedBy', select: "userName email firstName lastName " }]
+      });
     if (!category) throw new NotFoundException("category not found");
     return category;
   }
 
   async update(id: string, category: Category): Promise<Category | null> {
-    const categoryExist = await this.categoryRepository.getOne({ slug: category.slug, _id: { $ne: id } });
+    const categoryExist = await this.categoryRepository.getOne({ slug: category.slug, _id: { $ne: id }, deletedAt: { $exists: false } });
     if (categoryExist) throw new ConflictException("category already exist");
     const { _id, ...update } = category;
     return await this.categoryRepository.updateOne({ _id: id }, { $set: update }, { new: true });
