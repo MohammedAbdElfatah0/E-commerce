@@ -5,6 +5,6 @@ export class Brand {
     name: string;
     slug: string;
     createdBy: Types.ObjectId;
-    updateBy: Types.ObjectId;
+    updatedBy: Types.ObjectId;
     logo: Object;//todo
 }
