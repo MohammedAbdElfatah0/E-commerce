@@ -1,6 +1,6 @@
 import { DiscountType } from "@common/utils/enum/index";
-import { Prop, Schema, SchemaFactory, Virtual } from "@nestjs/mongoose";
-import { SchemaTypes, Types } from "mongoose";
+import { MongooseModule, Prop, Schema, SchemaFactory, Virtual } from "@nestjs/mongoose";
+import { HydratedDocument, model, SchemaTypes, Types } from "mongoose";
 
 
 
@@ -56,3 +56,10 @@ export class Product {
 
 export const productSchema = SchemaFactory.createForClass(Product);
 productSchema.index({ "deletedAt": 1 }, { expireAfterSeconds: 5 * 60 });
+
+//module
+export const productModule = MongooseModule.forFeature(
+    [
+        { name: Product.name, schema: productSchema },
+    ]
+);

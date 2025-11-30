@@ -51,4 +51,5 @@ export class AbstractRepository<T> {
         const result = await this.model.deleteOne({ _id: id });
         return result.deletedCount > 0;
     }
+    
 }
