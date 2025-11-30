@@ -4,7 +4,7 @@ import { SchemaTypes, Types } from "mongoose";
 
 
 
-@Schema({ timestamps: true, })
+@Schema({ timestamps: true, toJSON: { virtuals: true } })
 export class Product {
     readonly _id: Types.ObjectId;
     @Prop({ type: String, required: true, trim: true })
@@ -47,6 +47,12 @@ export class Product {
     colors: string[];
     @Prop({ type: [String] })
     sizes: string[];
+    //===========
+    @Prop({ type: Date })
+    deletedAt: Date;
+    @Prop({ type: Types.ObjectId, ref: 'User' })
+    deletedBy: Types.ObjectId;
 }
 
 export const productSchema = SchemaFactory.createForClass(Product);
+productSchema.index({ "deletedAt": 1 }, { expireAfterSeconds: 5 * 60 });

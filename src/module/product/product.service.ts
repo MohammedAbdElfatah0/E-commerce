@@ -17,33 +17,59 @@ export class ProductService {
     await this.categoryService.findOne(product.categoryId);
     await this.brandService.findOne(product.BrandId);
     //check product exist 
-    const productExist = await this.productRepository.getOne({ slug: product.slug, $or: [{ createdBy: user._id }, { updatedBy: user._id }] });
+    const productExist = await this.productRepository.getOne(
+      {
+        slug: product.slug,
+        $or: [
+          { createdBy: user._id },
+          { updatedBy: user._id }
+        ]
+      });
     if (productExist) {
-      this.update(productExist._id, product);
+      return this.update(productExist._id, product);
     }
     return await this.productRepository.create(product);
   }
 
-  findAll() {
-    return `This action returns all product`;
+  async findAll() {
+    const productExist = await this.productRepository.getAll(
+      {
+        deletedAt: { $exists: false }
+      },
+      {},
+      {}
+    );
+
+    return productExist;
   }
 
   async findOne(id: string | Types.ObjectId) {
-    const productExist = await this.productRepository.getOne({ _id: id });
+    const productExist = await this.productRepository.getOne({ _id: id, deletedAt: { $exists: false } });
     if (!productExist) throw new NotFoundException(MESSAGE.Product.notFound);
     return productExist;
   }
 
   async update(id: string | Types.ObjectId, product: Product) {
-    const productExist = await this.findOne(id)
+    const productExist = await this.findOne(id);
     product.stock += productExist.stock;
     product.colors = this.addToSet(product.colors, productExist.colors);
     product.sizes = this.addToSet(product.sizes, productExist.sizes);
     return await this.productRepository.updateOne({ _id: id }, product, { new: true });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string | Types.ObjectId, user: User) {
+
+    await this.findOne(id);
+    await this.productRepository.softDeleteOne(
+      id,
+      {
+        $set: {
+          deletedAt: Date.now(),
+          deletedBy: user._id
+        }
+      }
+    );
+
   }
 
   private addToSet(newDate: string[], oldDate: string[]) {

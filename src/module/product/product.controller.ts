@@ -7,7 +7,7 @@ import { ProdcutFactoryService } from './factory';
 import { ProductService } from './product.service';
 
 @Controller('product')
-@Auth(['Admin', 'Seller  '])
+@Auth(['Admin', 'Seller'])
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
@@ -16,51 +16,45 @@ export class ProductController {
 
   @Post()
   async create(@Body() createProductDto: CreateProductDto, @User() user: any) {
+
     const produnt = this.productFactoryService.createProduct(createProductDto, user);
     const productExist = await this.productService.create(produnt, user);
 
     return {
-      message: MESSAGE.Product.created,
-      success: true,
-      data: {
-        product: productExist
-      }
+      product: productExist
     }
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.productService.findAll();
   }
 
   @Get(':id')
   @Public()
-  findOne(@Param('id') id: string) {
-    const product = this.productService.findOne(id)
+  async findOne(@Param('id') id: string) {
+    const product = await this.productService.findOne(id)
     return {
-      success: true,
-      data: {
-        product
-      }
+
+      product
+
     }
 
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-
-    // const product=this.productService.update(id,)
+  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @User() user: any) {
+    const productExist = await this.productService.findOne(id);
+    const product = this.productFactoryService.updateProduct(updateProductDto, productExist, user)
+    const updateProduct = await this.productService.update(id, product);
     return {
-      success: true,
-      message: MESSAGE.Product.updated,
-      data: {
-
-      }
+      product: updateProduct
     }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
+  remove(@Param('id') id: string, @User() user: any) {
+    return this.productService.remove(id, user);
   }
 }
